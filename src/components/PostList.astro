@@ -1,0 +1,129 @@
+---
+import Icon from './Icon.astro';
+import { readingMinutes, shortDate, postHref, type Post } from '../utils/posts';
+
+interface Props { posts: Post[]; compact?: boolean; search?: boolean }
+const { posts, compact = false, search = false } = Astro.props;
+const Heading = compact ? 'h3' : 'h2';
+---
+
+<div data-post-list>
+  {search && posts.length > 0 && (
+    <form class="post-search" role="search" data-post-search hidden>
+      <div class="search-heading">
+        <label for="post-query">Buscar textos</label>
+        <span role="status" data-search-count>{posts.length} {posts.length === 1 ? 'texto' : 'textos'}</span>
+      </div>
+      <div class="search-field">
+        <Icon name="search" size={18} />
+        <input id="post-query" name="q" type="search" placeholder="Título ou assunto" autocomplete="off" />
+      </div>
+    </form>
+  )}
+
+  {posts.length > 0 ? (
+    <ul class:list={['post-list', { compact, 'has-search': search }]} role="list">
+      {posts.map((post) => (
+        <li class="post-row" data-post data-search-text={[post.data.title, post.data.description, ...post.data.tags].join(' ')}>
+          <time datetime={post.data.pubDate.toISOString()}>{shortDate(post.data.pubDate)}{!compact && <span class="archive-year"> {post.data.pubDate.getUTCFullYear()}</span>}</time>
+          <a class="post-row-link" href={postHref(post)}>
+            <Heading>{post.data.title}</Heading>
+            {compact && <Icon name="diagonal" size={14} />}
+            {!compact && (
+              <>
+                <p>{post.data.description}</p>
+                <span class="row-meta">{post.data.tags[0] && <>{post.data.tags[0]} · </>}{readingMinutes(post.body)} min de leitura</span>
+              </>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : <p>Ainda não há textos publicados.</p>}
+
+  {search && <p class="empty-state" data-search-empty hidden>Nenhum texto encontrado. Tente outro termo.</p>}
+</div>
+
+<script>
+  const searches = document.querySelectorAll<HTMLFormElement>('[data-post-search]');
+  const normalize = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
+  for (const form of searches) {
+    const container = form.closest('[data-post-list]');
+    const input = form.querySelector<HTMLInputElement>('input');
+    const count = form.querySelector('[data-search-count]');
+    const empty = container?.querySelector<HTMLElement>('[data-search-empty]');
+    const posts = Array.from(container?.querySelectorAll<HTMLElement>('[data-post]') ?? []);
+    if (!input || !count || !empty) continue;
+
+    input.value = new URL(window.location.href).searchParams.get('q') ?? '';
+    form.hidden = false;
+
+    const filter = () => {
+      const terms = normalize(input.value.trim()).split(/\s+/);
+      let matches = 0;
+      for (const post of posts) {
+        const text = normalize(post.dataset.searchText ?? '');
+        post.hidden = !terms.every((term) => text.includes(term));
+        if (!post.hidden) matches++;
+      }
+      count.textContent = matches + (matches === 1 ? ' texto' : ' textos');
+      empty.hidden = matches > 0;
+    };
+
+    input.addEventListener('input', filter);
+    form.addEventListener('submit', (event) => event.preventDefault());
+    filter();
+  }
+</script>
+
+<style>
+  .post-search { display: grid; gap: 8px; margin-bottom: 24px; }
+  .search-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+  label { color: var(--ink); font-size: var(--text-supporting); }
+  [data-search-count], time, .row-meta { color: var(--muted); font-size: var(--text-caption); }
+  .search-field { position: relative; }
+  .search-field > :global(svg) { position: absolute; inset: 0 auto 0 14px; margin-block: auto; color: var(--muted); pointer-events: none; }
+  input {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 14px 8px 44px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--panel);
+    color: var(--ink);
+  }
+  input::placeholder { color: var(--muted); opacity: 1; }
+  .empty-state { margin-top: 16px; color: var(--muted); }
+
+  .post-list { margin: 0; padding: 0; list-style: none; }
+  .has-search { border-top: 1px solid var(--line); }
+  .post-row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 18px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .post-row-link { min-width: 0; text-decoration: none; }
+  .post-row :is(h2, h3) {
+    font: 500 23px/1.3 var(--sans);
+    letter-spacing: -.03em;
+    overflow-wrap: anywhere;
+    text-wrap: wrap;
+  }
+  .post-row-link:hover :is(h2, h3) { color: var(--accent); }
+  .post-row p { max-width: 68ch; margin: 6px 0 8px; color: var(--body); font-size: 14px; line-height: 23px; }
+  time { line-height: 22px; padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .archive-year { display: block; }
+  .compact .post-row { grid-template-columns: 68px minmax(0, 1fr); align-items: center; gap: 12px; padding: 0; }
+  .compact .post-row:last-child { border-bottom: 0; }
+  .compact .post-row-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 54px; padding-block: 8px; }
+  .compact h3 { min-width: 0; font: 500 1rem/1.35 var(--sans); letter-spacing: -.015em; }
+  .compact .post-row-link :global(svg) { flex: none; color: var(--muted); }
+  @media (max-width: 760px) {
+    .post-list:not(.compact) .post-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .archive-year { display: inline; }
+  }
+</style>

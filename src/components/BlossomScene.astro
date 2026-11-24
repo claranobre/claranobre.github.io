@@ -1,0 +1,63 @@
+---
+import { withBase } from '../utils/paths';
+---
+
+<div class="blossom-scene" data-blossom data-petal={withBase('models/petala.glb')} role="group"
+  aria-label="Cerejeira em ASCII. Use as setas para girar, ou Shift e as setas horizontais para girar em Z."
+  aria-hidden="true" style={{
+  '--poster-light': `url('${withBase('models/cerejeira-ascii.webp')}')`,
+  '--poster-dark': `url('${withBase('models/cerejeira-ascii-escuro.webp')}')`,
+}}>
+  <span class="poster"></span>
+  <canvas data-blossom-ascii></canvas>
+</div>
+
+<script>
+  const stage = document.querySelector<HTMLElement>('[data-blossom]');
+
+  if (stage?.dataset.petal) {
+    const panel = stage;
+    const petal = stage.dataset.petal;
+    const start = async () => {
+      try {
+        const { mountBlossom } = await import('../lib/blossom-scene');
+        await mountBlossom(panel, petal);
+      } catch {
+        // O pôster continua visível quando o navegador não oferece WebGL.
+      }
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      void start();
+    });
+    observer.observe(panel);
+  }
+</script>
+
+<style>
+  .blossom-scene {
+    --poster: var(--poster-light);
+    --flower-ink: #863161;
+    --petal-ink: #67418a;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.52;
+    overflow: hidden;
+  }
+  :global(html[data-theme='dark']) .blossom-scene {
+    --poster: var(--poster-dark);
+    --flower-ink: #f0a8d5;
+    --petal-ink: #d7b5fc;
+  }
+  .poster, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .poster { background: var(--poster) center / contain no-repeat; }
+  canvas { visibility: hidden; }
+  [data-rendered] { cursor: grab; touch-action: pan-y; user-select: none; }
+  [data-dragging] { cursor: grabbing; }
+  [data-rendered]:focus-visible { outline-offset: -3px; }
+  [data-rendered] canvas { visibility: visible; }
+  [data-rendered] .poster { visibility: hidden; }
+  @media (forced-colors: active), print { .blossom-scene { visibility: hidden; } }
+</style>

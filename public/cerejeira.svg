@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <g fill="#ee94bd">
+    <path id="petala" d="M24 24c-3.3-1.2-7.8-4.6-8.1-10.2-.2-4.9 2.7-8.9 6.3-9.2L24 8l1.8-3.4c3.6.3 6.5 4.3 6.3 9.2-.3 5.6-4.8 9-8.1 10.2Z"/>
+    <use href="#petala" transform="rotate(72 24 24)"/>
+    <use href="#petala" transform="rotate(144 24 24)"/>
+    <use href="#petala" transform="rotate(216 24 24)"/>
+    <use href="#petala" transform="rotate(288 24 24)"/>
+  </g>
+  <circle cx="24" cy="24" r="3.1" fill="#532752"/>
+</svg>

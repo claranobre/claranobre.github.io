@@ -1,0 +1,81 @@
+---
+import ArticleTitleCard from '../components/ArticleTitleCard.astro';
+import Timeline from '../components/Timeline.astro';
+import Site from '../layouts/Site.astro';
+import { withBase } from '../utils/paths';
+import '../styles/reading.css';
+
+const description = 'Especialista em Cloud Security no PicPay e líder de comunidades de software livre em Natal.';
+const education = [
+  { title: 'Pós-graduação em Cyber/Computer Forensics and Counterterrorism', organization: 'BluEAD', start: '2022-03', end: '2024-03' },
+  { title: 'Tecnologia da Informação', organization: 'Universidade Federal do Rio Grande do Norte (UFRN)', start: '2013', end: '2021' },
+];
+const experience = [
+  { title: 'Cloud Security Specialist', organization: 'PicPay', start: '2025-07' },
+  { title: 'Analista de Segurança da Informação | CloudSec', organization: 'Conta Simples', start: '2021-10', end: '2025-06' },
+  { title: 'Site Reliability Engineer', organization: 'Evolux', start: '2020-02', end: '2021-10' },
+  { title: 'DevSecOps Analyst', organization: 'PRTE - Tecnologia e Soluções', start: '2019-04', end: '2020-01' },
+  { title: 'Suporte de Analista de Infraestrutura', organization: 'Veezor', start: '2011', end: '2019-03' },
+];
+---
+
+<Site title="Sobre" {description}>
+  <section class="narrow">
+    <header class="page-heading">
+      <ArticleTitleCard title="Sobre Clara Nobre" />
+      <div class="about-intro">
+        <img class="portrait" src={withBase('clara-nobre.webp')} width="400" height="400" alt="Retrato de Clara Nobre" decoding="async" />
+        <p>{description}</p>
+      </div>
+    </header>
+    <div class="prose">
+      <h2>Formação</h2>
+      <Timeline entries={education} />
+      <h2>Trabalho</h2>
+      <Timeline entries={experience} />
+      <p>
+        Sua experiência inclui infraestrutura como código com Terraform e Ansible e automação de verificações de segurança em pipelines de entrega.
+        Também trabalha com governança e proteção de ambientes AWS.
+      </p>
+      <h2>Comunidades em Natal</h2>
+      <p>
+        Clara coordena a PotiLivre, a Comunidade Potiguar de Software Livre. O grupo levou oficinas e palestras ao interior do estado com a PotiTour
+        e organizou o FLISOL 2026 em Natal em parceria com o IFRN.{' '}
+        <a href="https://potilivre.org/p/software-livre-historia-potilivre/">História da PotiLivre</a>{' e '}
+        <a href="https://ccsl.ifrn.edu.br/flisol-2026-reune-comunidade-tecnologica-no-ifrn-e-fortalece-a-cultura-do-software-livre-em-natal/">cobertura do FLISOL pelo IFRN</a>.
+      </p>
+      <p>
+        Em Natal, Clara ajudou a fundar a PyLadies Brasil, uma comunidade que incentiva a participação de mulheres na programação em Python.
+        É também uma das fundadoras do Jerimum Hackerspace, onde o grupo desenvolveu um protótipo de medidor de pressão arterial com Arduino.{' '}
+        <a href="https://pyfound.blogspot.com/2020/03/debora-azevedo-awarded-psf-community.html">Python Software Foundation</a>{' e '}
+        <a href="https://revistapesquisa.fapesp.br/espaco-livre-para-criar/">Pesquisa FAPESP</a>.
+      </p>
+      <h2>Palestras</h2>
+      <ul>
+        <li>Controle de acesso no DunaSec 2026, em Natal. <a href="https://dunasec.com.br/agenda/">Programação do DunaSec</a>.</li>
+        <li>Caminhos para começar em segurança da informação e Cloud Security no IEEE WIE Day 2026, no IMD/UFRN. <a href="https://www.even3.com.br/wieday-2026-747229/">Programação do IEEE WIE Day</a>.</li>
+        <li>Comunidades que transformam, sobre sua trajetória no software livre e na PyLadies, no Latinoware 2020. <a href="https://www.youtube.com/watch?v=8JrQeGUkMXY">Gravação da palestra</a>.</li>
+      </ul>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .about-intro {
+    max-inline-size: 70ch;
+    margin: 24px auto 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 22px;
+  }
+  .about-intro p { margin: 0; }
+  .portrait {
+    inline-size: clamp(112px, 20vw, 144px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+  }
+  @media (max-width: 380px) {
+    .about-intro { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

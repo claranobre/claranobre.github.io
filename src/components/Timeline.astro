@@ -1,0 +1,72 @@
+---
+interface Entry {
+  title: string;
+  organization: string;
+  start: string;
+  end?: string;
+}
+interface Props { entries: Entry[] }
+const { entries } = Astro.props;
+
+const monthYear = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const formatDate = (date: string) => date.length === 4 ? date : monthYear.format(new Date(`${date}-01`));
+---
+
+<ol class="timeline" role="list">
+  {entries.map(({ title, organization, start, end }) => (
+    <li>
+      <div>
+        <h3>{title}</h3>
+        <p class="organization">{organization}</p>
+      </div>
+      <p class="period">
+        <time datetime={start}>{formatDate(start)}</time>{' a '}
+        {end ? <time datetime={end}>{formatDate(end)}</time> : 'atual'}
+      </p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline {
+    list-style: none;
+    padding: 0;
+  }
+  .timeline li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 16px;
+    position: relative;
+    align-items: baseline;
+    margin: 0;
+    padding-inline-start: 22px;
+  }
+  .timeline li:not(:last-child) { padding-block-end: 21px; }
+  .timeline li::before,
+  .timeline li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+  }
+  .timeline li::before {
+    inset-block-start: 8px;
+    inset-inline-start: 0;
+    inline-size: 8px;
+    block-size: 8px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: var(--area);
+  }
+  .timeline li:not(:last-child)::after {
+    inset-block: 16px -8px;
+    inset-inline-start: 3.5px;
+    inline-size: 1px;
+    background: var(--line);
+  }
+  .timeline h3 { margin: 0; font: 600 1.0625rem/1.4 var(--sans); }
+  .organization { margin-block-start: 2px; }
+  .organization, .period { color: var(--muted); font-size: .9375rem; }
+  .period { font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px) {
+    .timeline li { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

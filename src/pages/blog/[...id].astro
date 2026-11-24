@@ -1,0 +1,86 @@
+---
+import { render } from 'astro:content';
+import ArticleTitleCard from '../../components/ArticleTitleCard.astro';
+import Chip from '../../components/Chip.astro';
+import Icon from '../../components/Icon.astro';
+import Site from '../../layouts/Site.astro';
+import { shareImageSize, site } from '../../site.config';
+import { withBase } from '../../utils/paths';
+import { formatDate, getPosts, postImageHref, readingMinutes, tagHref, wordCount, type Post } from '../../utils/posts';
+import '../../styles/reading.css';
+
+export async function getStaticPaths() {
+  return (await getPosts()).map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { Content, headings } = await render(post);
+const { title, description, pubDate, updatedDate, tags } = post.data;
+const sections = headings.filter(({ depth }) => depth === 2);
+const words = new Intl.NumberFormat(site.language).format(wordCount(post.body));
+const image = { ...shareImageSize, path: postImageHref(post), alt: `${title} | ${site.title}` };
+---
+
+<Site {title} {description} {image} type="article">
+  <article class="article">
+    <nav class="trail" aria-label="Localização">
+      <a class="back-link" href={withBase('blog/')}><Icon name="left" size={14} /> Todos os textos</a>
+    </nav>
+    <header class="article-heading">
+      <ArticleTitleCard {title} />
+      <p class="article-lead">{description}</p>
+      <ul class="article-meta" aria-label="Detalhes do texto" role="list">
+        {tags[0] && <li><Chip>{tags[0]}</Chip></li>}
+        <li><Icon name="calendar" /><time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time></li>
+        <li><Icon name="words" /> {words} {words === '1' ? 'palavra' : 'palavras'}</li>
+        <li><Icon name="clock" /> {readingMinutes(post.body)} min de leitura</li>
+        {updatedDate && <li>Atualizado em <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time></li>}
+      </ul>
+    </header>
+
+    <hr class="article-divider" />
+
+    {sections.length > 0 && (
+      <aside class="article-index">
+        <details>
+          <summary><Icon name="blog" /> Neste texto <span class="toc-chevron"><Icon name="chevron" size={14} /></span></summary>
+          <nav aria-label="Seções do texto">
+            <a href="#content">Voltar ao início do texto</a>
+            {sections.map(({ slug, text }) => <a href={`#${slug}`}>{text}</a>)}
+          </nav>
+        </details>
+      </aside>
+    )}
+
+    <div class="prose"><Content /></div>
+    <footer class="article-footer">
+      {tags.length > 0 && <ul class="article-tags" aria-label="Assuntos" role="list">{tags.map((tag) => <li><a href={tagHref(tag)}>#{tag}</a></li>)}</ul>}
+      <a href={withBase('blog/')}>Mais textos</a>
+    </footer>
+  </article>
+</Site>
+
+<script>
+  const index = document.querySelector<HTMLDetailsElement>('.article-index details');
+
+  if (index) {
+    const details = index;
+    const summary = details.querySelector('summary');
+    function dismissOutside(event: Event) {
+      if (event.target instanceof Node && !details.contains(event.target)) details.open = false;
+    }
+
+    details.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('a')) details.open = false;
+    });
+    details.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !details.open) return;
+      event.preventDefault();
+      details.open = false;
+      summary?.focus({ preventScroll: true });
+    });
+    document.addEventListener('pointerdown', dismissOutside);
+    document.addEventListener('focusin', dismissOutside);
+  }
+</script>
+
