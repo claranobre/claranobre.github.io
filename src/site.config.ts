@@ -2,7 +2,7 @@ export const site = {
   title: 'Clara Nobre',
   author: 'Clara Nobre',
   wordmark: 'Clara',
-  description: 'Arquiteta de segurança em nuvem no PicPay e líder de comunidades de software livre em Natal.',
+  description: 'Especialista em Cloud Security, formada em Tecnologia da Informação pela UFRN, pós-graduada em Cybersecurity e Cyber Forensics e líder de comunidades de software livre em Natal.',
   language: 'pt-BR',
   socialLinks: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/claranobre/', icon: 'linkedin' },

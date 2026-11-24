@@ -11,7 +11,7 @@ import { getPosts, postHref, readingMinutes, shortDate } from '../utils/posts';
 
 const posts = await getPosts();
 const [featured] = posts;
-const [firstName, ...lastNames] = site.author.split(' ');
+const [firstName, ...lastNames] = site.title.split(' ');
 const image = {
   ...shareImageSize,
   path: withBase('og.png'),
@@ -24,7 +24,7 @@ const image = {
     <section class="lead" aria-labelledby="intro-title">
       <div class="intro">
         <h1 id="intro-title">{firstName} <span>{lastNames.join(' ')}</span></h1>
-        <p>Especialista em Cloud Security, formada em Tecnologia da Informação pela UFRN, pós-graduada em Cybersecurity e Cyber Forensics e líder de comunidades de software livre em Natal.</p>
+        <p>{site.description}</p>
         <div class="intro-links">
           <a href={withBase('about/')}>Sobre a Clara</a>
         </div>

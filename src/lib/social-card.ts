@@ -182,8 +182,21 @@ export async function renderHomeImage() {
   const titleSize = Math.min(94, 460 / textWidth(displayFont, site.title, 1));
   const titleX = 87;
   const suffixX = titleX + textWidth(displayFont, prefix + ' ', titleSize);
-  const description = wrapText(site.description, font, 30, 430)
-    .map((line, index) => drawText(font, line, 30, titleX, 355 + index * 43, palette.ink))
+  const descriptionWidth = 450;
+  const descriptionHeight = 240;
+  const lineHeight = 1.4;
+  let descriptionSize = 30;
+  let descriptionLines = wrapText(site.description, font, descriptionSize, descriptionWidth);
+  while (descriptionLines.length * descriptionSize * lineHeight > descriptionHeight ||
+    descriptionLines.some(line => textWidth(font, line, descriptionSize) > descriptionWidth)) {
+    descriptionSize -= 1;
+    descriptionLines = wrapText(site.description, font, descriptionSize, descriptionWidth);
+  }
+  const leading = descriptionSize * lineHeight;
+  const descriptionBaseline = 398 - (descriptionLines.length - 1) * leading / 2;
+  const titleBaseline = descriptionBaseline - 60;
+  const description = descriptionLines
+    .map((line, index) => drawText(font, line, descriptionSize, titleX, descriptionBaseline + index * leading, palette.ink))
     .join('');
   const left = 30;
   const top = 30;
@@ -214,8 +227,8 @@ export async function renderHomeImage() {
     <circle cx="${markX}" cy="${markY}" r="31" fill="#f8e8f0" stroke="#e4cbdc" stroke-width="1.5"/>
     <image x="${markX - 19}" y="${markY - 19}" width="38" height="38" xlink:href="data:image/svg+xml;base64,${logo}"/>
     <image x="492" y="84" width="660" height="435" xlink:href="data:image/png;base64,${blossom.toString('base64')}"/>
-    ${drawText(displayFont, prefix, titleSize, titleX, 295, palette.ink)}
-    ${drawText(displayFont, suffix, titleSize, suffixX, 295, palette.accent)}
+    ${drawText(displayFont, prefix, titleSize, titleX, titleBaseline, palette.ink)}
+    ${drawText(displayFont, suffix, titleSize, suffixX, titleBaseline, palette.accent)}
     ${description}
   </svg>`;
 
